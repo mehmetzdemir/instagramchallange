@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import requests
-import random
 import json
 import hashlib
 import hmac
@@ -16,7 +15,7 @@ from datetime import datetime
 import calendar
 import os
 from requests_toolbelt import MultipartEncoder
-# Turn off InsecureRequestWarning
+#Turn off InsecureRequestWarning
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -24,7 +23,7 @@ try:
     from moviepy.editor import VideoFileClip
 except ImportError:
     print("Fail to import moviepy. Need only for Video upload.")
-# The urllib library was split into other modules from Python 2 to Python 3
+#The urllib library was split into other modules from Python 2 to Python 3
 if sys.version_info.major == 3:
     import urllib.parse
 try:
@@ -143,11 +142,13 @@ class InstagramAPI:
     def uploadPhoto(self, photo, caption=None, upload_id=None, is_sidecar=None):
         if upload_id is None:
             upload_id = str(int(time.time() * 1000))
+        if isinstance(photo, str):
+            photo = open(photo, 'rb')
         data = {'upload_id': upload_id,
                 '_uuid': self.uuid,
                 '_csrftoken': self.token,
                 'image_compression': '{"lib_name":"jt","lib_version":"1.3.0","quality":"87"}',
-                'photo': ('pending_media_%s.jpg' % upload_id, open(photo, 'rb'), 'application/octet-stream', {'Content-Transfer-Encoding': 'binary'})}
+                'photo': ('pending_media_%s.jpg' % upload_id, photo, 'application/octet-stream', {'Content-Transfer-Encoding': 'binary'})}
         if is_sidecar:
             data['is_sidecar'] = '1'
         m = MultipartEncoder(data, boundary=self.uuid)
@@ -816,10 +817,10 @@ class InstagramAPI:
 
     def approve(self, userId):
         data = json.dumps({
-        '_uuid'         : self.uuid,
-        '_uid'          : self.username_id,
-        'user_id'       : userId,
-        '_csrftoken'    : self.token
+        '_uuid': self.uuid,
+        '_uid': self.username_id,
+        'user_id': userId,
+        '_csrftoken': self.token
         })
         return self.SendRequest('friendships/approve/'+ str(userId) + '/', self.generateSignature(data))
 
